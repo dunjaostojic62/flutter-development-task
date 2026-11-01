@@ -38,6 +38,14 @@ class WeatherPage extends StatelessWidget{
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
+                    state.weather.city,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 60,
+                      fontFamily: 'Caveat',
+                    ),
+                  ),
+                  Text(
                     '${state.weather.temperature}°C',
                     style: const TextStyle(
                       fontSize: 40,
@@ -45,7 +53,7 @@ class WeatherPage extends StatelessWidget{
                     ),
                   ),
                   Text(
-                    '${state.weather.condition}',
+                    state.weather.condition,
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.normal,
