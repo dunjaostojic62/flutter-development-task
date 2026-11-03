@@ -1,5 +1,13 @@
 abstract class WeatherEvent {}
 
-class WeatherRequested extends WeatherEvent{}
+class WeatherRequested extends WeatherEvent{
+  final String city;
 
-class WeatherRefreshed extends WeatherEvent{}
+  WeatherRequested(this.city);
+}
+
+class WeatherRefreshed extends WeatherEvent{
+  final String city;
+
+  WeatherRefreshed(this.city);
+}

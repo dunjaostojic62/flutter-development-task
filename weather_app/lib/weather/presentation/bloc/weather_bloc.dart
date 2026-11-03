@@ -10,27 +10,27 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
 
   WeatherBloc(this.repository) : super(WeatherInitial()){
     on<WeatherRequested>((event, emit) async{
-      emit(WeatherLoading());
-
-      try{
-        final weather = await repository.getWeather();
-        emit(WeatherLoaded(weather));
-      }
-      catch(e){
-        emit(WeatherError());
-      }
+      await _fetchWeather(event.city, emit);
     });
 
     on<WeatherRefreshed>((event, emit) async{
-      emit(WeatherLoading());
-
-      try{
-        final weather = await repository.getWeather();
-        emit(WeatherLoaded(weather));
-      }
-      catch(e){
-        emit(WeatherError());
-      }
+      await _fetchWeather(event.city,emit);
     });
   }
+
+  Future<void> _fetchWeather(
+    String city,
+    Emitter<WeatherState> emit) async {
+    emit(WeatherLoading());
+
+    try{
+      final weather = await repository.getWeather(city);
+      emit(WeatherLoaded(weather));
+    }
+    catch(e){
+      emit(WeatherError());
+    }
+  }
 }
+
+

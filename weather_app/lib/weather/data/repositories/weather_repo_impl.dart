@@ -1,19 +1,25 @@
 import 'package:weather_app/weather/data/datasources/weather_remote_data_source.dart';
 import 'package:weather_app/weather/domain/entities/weather.dart';
 import 'package:weather_app/weather/domain/repositories/weather_repository.dart';
+import 'package:weather_app/weather/data/datasources/geocode_remote_ds.dart';
 
 class WeatherRepoImpl  implements WeatherRepository{
 
   final WeatherRemoteDataSource remoteDataSource;
+  final GeocodingRemoteDataSource geocodingDataSource;
 
-  WeatherRepoImpl(this.remoteDataSource);
+  WeatherRepoImpl(this.remoteDataSource, this.geocodingDataSource);
 
   @override
-  Future<Weather> getWeather() async {
-    final data = await remoteDataSource.getWeather();
+  Future<Weather> getWeather(String city) async {
+    final location = await geocodingDataSource.getCity(city);
+    final latitude = (location['latitude'] as num).toDouble();
+    final longitude = (location['longitude'] as num).toDouble();
+
+    final data = await remoteDataSource.getWeather(latitude, longitude,);
     final current = data['current'] as Map<String, dynamic>;
     final weather = Weather(
-      city: 'Novi Sad',
+      city: location['name'] as String,
       temperature: (current['temperature_2m'] as num).toDouble(),
       feelsLike: (current['apparent_temperature'] as num).toDouble(),
       windSpeed: (current['wind_speed_10m'] as num).toDouble(),

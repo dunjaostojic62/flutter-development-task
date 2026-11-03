@@ -6,18 +6,20 @@ import 'weather/data/datasources/weather_remote_data_source.dart';
 import 'weather/data/repositories/weather_repo_impl.dart';
 import 'weather/presentation/weather_page.dart';
 import 'weather/presentation/bloc/weather_bloc.dart';
+import 'weather/data/datasources/geocode_remote_ds.dart';
 
 void main(){
 
   final dataSource = WeatherRemoteDataSource();
-  final repository = WeatherRepoImpl(dataSource);
+  final geocodingDataSource = GeocodingRemoteDataSource();
+  final repository = WeatherRepoImpl(dataSource, geocodingDataSource,);
 
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: BlocProvider(
         create: (context)=> WeatherBloc(repository)
-          ..add(WeatherRequested()),
+          ..add(WeatherRequested('Novi Sad')),
         child: WeatherPage(),
       ),
     ),
