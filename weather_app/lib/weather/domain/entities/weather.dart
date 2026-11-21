@@ -4,6 +4,7 @@ class Weather {
   final double feelsLike;
   final double windSpeed;
   final String condition;
+  final bool isDay;
 
   const Weather({
     required this.city,
@@ -11,5 +12,6 @@ class Weather {
     required this.feelsLike,
     required this.windSpeed,
     required this.condition,
+    required this.isDay,
   });
 }

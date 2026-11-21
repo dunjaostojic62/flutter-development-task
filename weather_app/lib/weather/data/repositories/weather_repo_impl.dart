@@ -26,6 +26,7 @@ class WeatherRepoImpl  implements WeatherRepository{
       condition: weatherCodeToDescription(
         current['weather_code'] as int,
       ),
+      isDay: current['is_day'] == 1,
     );
 
   return weather;

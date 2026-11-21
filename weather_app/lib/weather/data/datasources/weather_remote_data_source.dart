@@ -13,7 +13,7 @@ class WeatherRemoteDataSource {
         'latitude': latitude.toString(),
         'longitude': longitude.toString(),
         'current':
-            'temperature_2m,apparent_temperature,wind_speed_10m,weather_code',
+          'temperature_2m,apparent_temperature,wind_speed_10m,weather_code,is_day',
       },
     );
 
