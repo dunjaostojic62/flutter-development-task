@@ -27,12 +27,16 @@ void main() {
   );
 }
 
+
 class WeatherApp extends StatelessWidget {
   const WeatherApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WeatherBloc, WeatherState>(
+      buildWhen: (previous, current) {
+        return current is WeatherLoaded;
+      },
       builder: (context, state) {
         final isDay = state is WeatherLoaded
             ? state.weather.isDay
@@ -40,8 +44,24 @@ class WeatherApp extends StatelessWidget {
 
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF6C8DFF),
+              brightness: Brightness.light,
+            ),
+            scaffoldBackgroundColor: const Color(0xFFF5F7FF),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF8396FF),
+              brightness: Brightness.dark,
+            ),
+            scaffoldBackgroundColor: const Color(0xFF101827),
+          ),
           themeMode: isDay ? ThemeMode.light : ThemeMode.dark,
           home: const WeatherPage(),
         );

@@ -2,6 +2,7 @@ import 'package:weather_app/weather/data/datasources/weather_remote_data_source.
 import 'package:weather_app/weather/domain/entities/weather.dart';
 import 'package:weather_app/weather/domain/repositories/weather_repository.dart';
 import 'package:weather_app/weather/data/datasources/geocode_remote_ds.dart';
+import 'package:weather_app/weather/domain/hourly_weather.dart';
 
 class WeatherRepoImpl  implements WeatherRepository{
 
@@ -18,6 +19,24 @@ class WeatherRepoImpl  implements WeatherRepository{
 
     final data = await remoteDataSource.getWeather(latitude, longitude,);
     final current = data['current'] as Map<String, dynamic>;
+    final hourly = data['hourly'] as Map<String, dynamic>;
+
+    final times = hourly['time'] as List<dynamic>;
+    final temperatures = hourly['temperature_2m'] as List<dynamic>;
+    final weatherCodes = hourly['weather_code'] as List<dynamic>;
+    final isDayValues = hourly['is_day'] as List<dynamic>;
+
+    final List<HourlyWeather> hourlyForecast = [];
+    for (int i = 0; i < times.length; i++) {
+      final forecast = HourlyWeather(
+        time: DateTime.parse(times[i] as String),
+        temperature: (temperatures[i] as num).toDouble(),
+        condition: weatherCodeToDescription(weatherCodes[i] as int),
+        isDay: isDayValues[i] == 1,
+      );
+      hourlyForecast.add(forecast);
+    }
+
     final weather = Weather(
       city: location['name'] as String,
       temperature: (current['temperature_2m'] as num).toDouble(),
@@ -27,6 +46,7 @@ class WeatherRepoImpl  implements WeatherRepository{
         current['weather_code'] as int,
       ),
       isDay: current['is_day'] == 1,
+      hourlyForecast: hourlyForecast,
     );
 
   return weather;
@@ -48,3 +68,4 @@ String weatherCodeToDescription(int code) {
     _ => 'Unknown',
   };
 }
+
