@@ -5,32 +5,34 @@ import 'weather_event.dart';
 import 'weather_state.dart';
 
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
-
   final WeatherRepository repository;
 
-  WeatherBloc(this.repository) : super(WeatherInitial()){
-    on<WeatherRequested>((event, emit) async{
+  String _currentCity = 'Novi Sad';
+
+  WeatherBloc(this.repository) : super(WeatherInitial()) {
+    on<WeatherRequested>((event, emit) async {
       await _fetchWeather(event.city, emit);
     });
 
-    on<WeatherRefreshed>((event, emit) async{
-      await _fetchWeather(event.city,emit);
+    on<WeatherRefreshed>((event, emit) async {
+      await _fetchWeather(_currentCity, emit);
     });
   }
 
   Future<void> _fetchWeather(
     String city,
-    Emitter<WeatherState> emit) async {
+    Emitter<WeatherState> emit,
+  ) async {
     emit(WeatherLoading());
 
-    try{
+    try {
       final weather = await repository.getWeather(city);
+
+      _currentCity = weather.city;
+
       emit(WeatherLoaded(weather));
-    }
-    catch(e){
+    } catch (e) {
       emit(WeatherError());
     }
   }
 }
-
-

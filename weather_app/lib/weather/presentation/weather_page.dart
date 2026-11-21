@@ -19,7 +19,7 @@ class WeatherPage extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               context.read<WeatherBloc>().add(
-                WeatherRefreshed('Novi Sad'),
+                WeatherRefreshed(),
               );
             },
           ),

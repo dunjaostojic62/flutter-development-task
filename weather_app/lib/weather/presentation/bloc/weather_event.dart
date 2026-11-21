@@ -7,7 +7,5 @@ class WeatherRequested extends WeatherEvent{
 }
 
 class WeatherRefreshed extends WeatherEvent{
-  final String city;
-
-  WeatherRefreshed(this.city);
+  
 }
