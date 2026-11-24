@@ -1,14 +1,14 @@
+
 import 'dart:ui';
-import 'weather_atmosphere.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-
-import 'bloc/weather_event.dart';
-import 'bloc/weather_bloc.dart';
-import 'bloc/weather_state.dart';
 import 'package:weather_app/weather/domain/hourly_weather.dart';
+
+import 'bloc/weather_bloc.dart';
+import 'bloc/weather_event.dart';
+import 'bloc/weather_state.dart';
+import 'weather_atmosphere.dart';
 
 class WeatherPage extends StatelessWidget {
   const WeatherPage({super.key});
@@ -17,7 +17,8 @@ class WeatherPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WeatherBloc, WeatherState>(
       builder: (context, state) {
-        final bool isDay = Theme.of(context).brightness == Brightness.light;
+        final bool isDay =
+            Theme.of(context).brightness == Brightness.light;
 
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -69,7 +70,7 @@ class WeatherPage extends StatelessWidget {
                         const SizedBox(height: 24),
                         Expanded(
                           child: Center(
-                            child: _buildBody(state, isDay),
+                            child: _buildBody(state),
                           ),
                         ),
                       ],
@@ -110,22 +111,32 @@ class WeatherPage extends StatelessWidget {
 
   Widget _buildSearchBar(BuildContext context) {
     return _GlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 6,
+      ),
       child: TextField(
         style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
         ),
         decoration: const InputDecoration(
-          icon: Icon(Icons.search, color: Colors.white),
+          icon: Icon(
+            Icons.search,
+            color: Colors.white,
+          ),
           hintText: 'Search city...',
-          hintStyle: TextStyle(color: Colors.white70),
+          hintStyle: TextStyle(
+            color: Colors.white70,
+          ),
           border: InputBorder.none,
         ),
         onSubmitted: (city) {
-          if (city.trim().isNotEmpty) {
+          final trimmedCity = city.trim();
+
+          if (trimmedCity.isNotEmpty) {
             context.read<WeatherBloc>().add(
-              WeatherRequested(city.trim()),
+              WeatherRequested(trimmedCity),
             );
           }
         },
@@ -133,7 +144,7 @@ class WeatherPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(WeatherState state, bool isDay) {
+  Widget _buildBody(WeatherState state) {
     if (state is WeatherLoading) {
       return _GlassCard(
         width: double.infinity,
@@ -142,7 +153,9 @@ class WeatherPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: Colors.white),
+              CircularProgressIndicator(
+                color: Colors.white,
+              ),
               SizedBox(height: 16),
               Text(
                 'Loading...',
@@ -201,7 +214,10 @@ class WeatherPage extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      _getWeatherIcon(weather.condition, weather.isDay),
+                      _getWeatherIcon(
+                        weather.condition,
+                        weather.isDay,
+                      ),
                       size: 64,
                       color: Colors.white,
                     ),
@@ -244,7 +260,8 @@ class WeatherPage extends StatelessWidget {
                 Expanded(
                   child: _InfoCard(
                     title: 'Feels like',
-                    value: '${weather.feelsLike.toStringAsFixed(1)}°C',
+                    value:
+                        '${weather.feelsLike.toStringAsFixed(1)}°C',
                     icon: Icons.thermostat,
                   ),
                 ),
@@ -252,14 +269,14 @@ class WeatherPage extends StatelessWidget {
                 Expanded(
                   child: _InfoCard(
                     title: 'Wind speed',
-                    value: '${weather.windSpeed.toStringAsFixed(1)} km/h',
+                    value:
+                        '${weather.windSpeed.toStringAsFixed(1)} km/h',
                     icon: Icons.air,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 28),
-
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -271,9 +288,7 @@ class WeatherPage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
             _buildHourlyForecast(weather.hourlyForecast),
           ],
         ),
@@ -297,67 +312,66 @@ class WeatherPage extends StatelessWidget {
     );
   }
 
+  Widget _buildHourlyForecast(List<HourlyWeather> forecast) {
+    return SizedBox(
+      height: 150,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: forecast.length,
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 12);
+        },
+        itemBuilder: (context, index) {
+          final hour = forecast[index];
 
-Widget _buildHourlyForecast(List<HourlyWeather> forecast) {
-  return SizedBox(
-    height: 150,
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: forecast.length,
-      separatorBuilder: (context, index) {
-        return const SizedBox(width: 12);
-      },
-      itemBuilder: (context, index) {
-        final hour = forecast[index];
+          final formattedTime =
+              '${hour.time.hour.toString().padLeft(2, '0')}:00';
 
-        final formattedTime =
-            '${hour.time.hour.toString().padLeft(2, '0')}:00';
-
-        return _GlassCard(
-          width: 110,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                formattedTime,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 15,
+          return _GlassCard(
+            width: 110,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  formattedTime,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-              Icon(
-                _getWeatherIcon(hour.condition, hour.isDay),
-                color: Colors.white,
-                size: 32,
-              ),
-              Text(
-                '${hour.temperature.toStringAsFixed(0)}°',
-                style: const TextStyle(
+                Icon(
+                  _getWeatherIcon(
+                    hour.condition,
+                    hour.isDay,
+                  ),
                   color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+                  size: 32,
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    ),
-  );
-}
+                Text(
+                  '${hour.temperature.toStringAsFixed(0)}°',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   IconData _getWeatherIcon(String condition, bool isDay) {
-    final lowerCondition = condition.toLowerCase();
+    final lowerCondition = condition.trim().toLowerCase();
 
-    if (lowerCondition.contains('clear')) {
-      return isDay ? Icons.wb_sunny_rounded : Icons.nightlight_round;
+    if (lowerCondition.contains('thunder')) {
+      return Icons.flash_on;
     }
 
-    if (lowerCondition.contains('cloud')) {
-      return Icons.cloud_rounded;
-    }
-
-    if (lowerCondition.contains('rain') || lowerCondition.contains('drizzle')) {
+    if (lowerCondition.contains('rain') ||
+        lowerCondition.contains('drizzle')) {
       return Icons.grain;
     }
 
@@ -365,15 +379,23 @@ Widget _buildHourlyForecast(List<HourlyWeather> forecast) {
       return Icons.ac_unit;
     }
 
-    if (lowerCondition.contains('thunder')) {
-      return Icons.flash_on;
-    }
-
     if (lowerCondition.contains('fog')) {
       return Icons.blur_on;
     }
 
-    return isDay ? Icons.wb_sunny_rounded : Icons.nightlight_round;
+    if (lowerCondition.contains('cloud') ||
+        lowerCondition.contains('overcast')) {
+      return Icons.cloud;
+    }
+
+    if (lowerCondition.contains('clear')) {
+      return isDay
+          ? Icons.wb_sunny_rounded
+          : Icons.nightlight_round;
+    }
+
+    // Nepoznat vremenski opis ne prikazujemo kao sunce.
+    return Icons.help_outline;
   }
 }
 
@@ -392,10 +414,17 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _GlassCard(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 20,
+        ),
         child: Column(
           children: [
-            Icon(icon, color: Colors.white, size: 28),
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 28,
+            ),
             const SizedBox(height: 12),
             Text(
               title,
@@ -465,13 +494,17 @@ class _GlassCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        filter: ImageFilter.blur(
+          sigmaX: 14,
+          sigmaY: 14,
+        ),
         child: Container(
           width: width,
           padding: padding ?? const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
-              color: Colors.white.withValues(alpha: 0.16),            border: Border.all(
+            color: Colors.white.withValues(alpha: 0.16),
+            border: Border.all(
               color: Colors.white.withValues(alpha: 0.22),
               width: 1.2,
             ),
